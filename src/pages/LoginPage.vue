@@ -94,8 +94,10 @@
         </q-form>
       </q-card-section>
 
-      <q-card-section v-if="step === 'credentials' && isRegistered" class="text-center q-pt-none">
-        <div class="text-caption text-grey-5">Tus datos se guardan localmente en este dispositivo</div>
+      <q-card-section v-if="step === 'credentials'" class="text-center q-pt-none">
+        <q-btn flat dense no-caps color="grey-7" size="sm"
+          :label="isRegistered ? '¿No tenés cuenta? Crear cuenta' : '¿Ya tenés cuenta? Ingresar'"
+          @click="isRegistered = !isRegistered; credError = ''" />
       </q-card-section>
     </q-card>
   </q-page>
@@ -113,7 +115,7 @@ const authStore = useAuthStore()
 const router = useRouter()
 const $q = useQuasar()
 
-const isRegistered = ref(authStore.isRegistered)
+const isRegistered = ref(true)
 const step = ref<'credentials' | 'totp' | 'setup2fa'>('credentials')
 
 const username = ref('')
@@ -207,6 +209,6 @@ function goToDashboard() {
 }
 
 onMounted(() => {
-  isRegistered.value = authStore.isRegistered
+  // intentionally left blank
 })
 </script>
