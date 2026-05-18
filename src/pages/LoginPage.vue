@@ -30,6 +30,11 @@
             </template>
           </q-input>
 
+          <q-input v-if="!isRegistered" v-model="inviteCode" label="Código de invitación" outlined
+            :rules="[v => !!v || 'El código de invitación es requerido']">
+            <template #prepend><q-icon name="vpn_key" /></template>
+          </q-input>
+
           <div v-if="credError" class="text-negative text-caption text-center">{{ credError }}</div>
 
           <q-btn type="submit" :label="isRegistered ? 'Ingresar' : 'Crear cuenta'"
@@ -100,6 +105,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { AuthService } from '../services/auth'
 import { useQuasar } from 'quasar'
 import QRCode from 'qrcode'
 
@@ -112,6 +118,7 @@ const step = ref<'credentials' | 'totp' | 'setup2fa'>('credentials')
 
 const username = ref('')
 const password = ref('')
+const inviteCode = ref('')
 const showPass = ref(false)
 const credError = ref('')
 const loading = ref(false)
@@ -142,6 +149,11 @@ async function handleCredentials() {
       }
       goToDashboard()
     } else {
+      const validCode = await AuthService.checkRegistrationCode(inviteCode.value)
+      if (!validCode) {
+        credError.value = 'Código de invitación incorrecto'
+        return
+      }
       await authStore.register(username.value, password.value)
       await initSetup2fa()
       step.value = 'setup2fa'

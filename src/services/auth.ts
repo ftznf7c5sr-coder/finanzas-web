@@ -96,6 +96,12 @@ export const AuthService = {
     }
   },
 
+  async checkRegistrationCode(code: string): Promise<boolean> {
+    const snap = await getDoc(doc(db, 'config', 'registration'))
+    if (!snap.exists()) return false
+    return snap.data().code === code
+  },
+
   async register(username: string, password: string): Promise<void> {
     const cred = await createUserWithEmailAndPassword(auth, toEmail(username), password)
     await updateProfile(cred.user, { displayName: username })
