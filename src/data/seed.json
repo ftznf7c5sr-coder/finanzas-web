@@ -1,0 +1,143 @@
+{
+  "accounts": [
+    {
+      "id": "acc-1",
+      "name": "Banco Galicia",
+      "type": "bank",
+      "currency": "ARS",
+      "balance": 850000,
+      "tna": 118,
+      "balanceUpdatedAt": "2026-03-26T10:00:00.000Z",
+      "createdAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "acc-2",
+      "name": "Brubank",
+      "type": "bank",
+      "currency": "ARS",
+      "balance": 320000,
+      "tna": 110,
+      "balanceUpdatedAt": "2026-03-26T10:00:00.000Z",
+      "createdAt": "2024-02-01T10:00:00.000Z"
+    },
+    {
+      "id": "acc-3",
+      "name": "Cuenta USD",
+      "type": "bank",
+      "currency": "USD",
+      "balance": 5200,
+      "tna": 0,
+      "balanceUpdatedAt": "2026-03-26T10:00:00.000Z",
+      "createdAt": "2024-03-10T10:00:00.000Z"
+    },
+    {
+      "id": "acc-4",
+      "name": "Efectivo",
+      "type": "cash",
+      "currency": "ARS",
+      "balance": 150000,
+      "tna": 0,
+      "balanceUpdatedAt": "2026-03-26T10:00:00.000Z",
+      "createdAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "acc-5",
+      "name": "IOL Broker",
+      "type": "broker",
+      "currency": "ARS",
+      "balance": 250000,
+      "tna": 0,
+      "balanceUpdatedAt": "2026-03-26T10:00:00.000Z",
+      "createdAt": "2024-04-01T10:00:00.000Z"
+    }
+  ],
+  "investments": [
+    {
+      "id": "inv-1",
+      "name": "MercadoLibre",
+      "ticker": "MELI",
+      "type": "cedear",
+      "currency": "ARS",
+      "quantity": 10,
+      "avgPrice": 85000,
+      "currentPrice": 92000,
+      "createdAt": "2024-03-01T10:00:00.000Z",
+      "updatedAt": "2024-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "inv-2",
+      "name": "YPF S.A.",
+      "ticker": "YPF",
+      "type": "stock",
+      "currency": "ARS",
+      "quantity": 500,
+      "avgPrice": 12000,
+      "currentPrice": 15500,
+      "createdAt": "2024-02-15T10:00:00.000Z",
+      "updatedAt": "2024-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "inv-3",
+      "name": "Bitcoin",
+      "ticker": "BTC",
+      "type": "crypto",
+      "currency": "USD",
+      "quantity": 0.05,
+      "avgPrice": 42000,
+      "currentPrice": 68000,
+      "createdAt": "2024-01-20T10:00:00.000Z",
+      "updatedAt": "2024-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "inv-4",
+      "name": "FCI Balanz Capital",
+      "ticker": "BALANZ",
+      "type": "fci",
+      "currency": "ARS",
+      "quantity": 50000,
+      "avgPrice": 1,
+      "currentPrice": 1.18,
+      "createdAt": "2024-06-01T10:00:00.000Z",
+      "updatedAt": "2024-11-01T10:00:00.000Z"
+    },
+    {
+      "id": "inv-5",
+      "name": "Plazo Fijo Galicia",
+      "ticker": "",
+      "type": "plazo_fijo",
+      "currency": "ARS",
+      "quantity": 1,
+      "avgPrice": 500000,
+      "currentPrice": 500000,
+      "createdAt": "2024-10-15T10:00:00.000Z",
+      "updatedAt": "2024-11-01T10:00:00.000Z"
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset-1",
+      "name": "Departamento Palermo",
+      "type": "property",
+      "currency": "USD",
+      "value": 95000,
+      "createdAt": "2024-01-01T10:00:00.000Z"
+    },
+    {
+      "id": "asset-2",
+      "name": "Auto Toyota Corolla",
+      "type": "vehicle",
+      "currency": "USD",
+      "value": 18000,
+      "createdAt": "2024-01-01T10:00:00.000Z"
+    }
+  ],
+  "snapshots": [
+    { "date": "2024-05-01", "totalARS": 28500000, "totalUSD": 24000 },
+    { "date": "2024-06-01", "totalARS": 31200000, "totalUSD": 25100 },
+    { "date": "2024-07-01", "totalARS": 34800000, "totalUSD": 26300 },
+    { "date": "2024-08-01", "totalARS": 37100000, "totalUSD": 26900 },
+    { "date": "2024-09-01", "totalARS": 39500000, "totalUSD": 27400 },
+    { "date": "2024-10-01", "totalARS": 42000000, "totalUSD": 28100 },
+    { "date": "2024-11-01", "totalARS": 45600000, "totalUSD": 28800 }
+  ]
+}
