@@ -68,41 +68,44 @@
         </div>
       </div>
 
-      <!-- Breakdown cards -->
-      <div class="row q-col-gutter-sm q-mb-md">
-        <div v-for="card in breakdownCards" :key="card.label" class="col-4">
-          <q-card bordered flat style="border-radius: 12px">
-            <q-card-section class="q-pa-sm text-center">
-              <q-icon :name="card.icon" :color="card.color" size="24px" />
-              <div class="text-caption text-grey-6 q-mt-xs">{{ card.label }}</div>
-              <div class="text-body2 text-weight-bold">$ {{ fmtShort(card.value) }}</div>
+      <!-- Distribución + Breakdown combinados -->
+      <div v-if="portfolio.totalPatrimonioARS > 0" class="row q-col-gutter-md q-mb-md">
+        <!-- Donut -->
+        <div class="col-12 col-sm-5">
+          <q-card flat bordered style="border-radius: 16px; height: 100%">
+            <q-card-section class="q-pb-none">
+              <div class="text-subtitle2 text-weight-bold">Distribución</div>
+            </q-card-section>
+            <q-card-section class="q-pt-none flex flex-center">
+              <apexchart type="donut" height="210" :options="donutOptions" :series="donutSeries" />
             </q-card-section>
           </q-card>
         </div>
+        <!-- Breakdown -->
+        <div class="col-12 col-sm-7">
+          <div class="column q-gutter-sm">
+            <q-card v-for="card in breakdownCards" :key="card.label" flat bordered style="border-radius: 12px">
+              <q-card-section class="q-pa-md row items-center no-wrap">
+                <q-avatar :color="`${card.color}-1`" size="44px" class="q-mr-md">
+                  <q-icon :name="card.icon" :color="card.color" size="22px" />
+                </q-avatar>
+                <div class="col">
+                  <div class="text-caption text-grey-6">{{ card.label }}</div>
+                  <div class="text-body1 text-weight-bold">$ {{ fmtShort(card.value) }}</div>
+                  <div v-if="portfolio.dolarBlue > 0" class="text-caption text-grey-5">
+                    U$D {{ fmtShort(card.value / portfolio.dolarBlue) }}
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
       </div>
-
-      <!-- Distribución donut -->
-      <q-card
-        v-if="portfolio.totalPatrimonioARS > 0"
-        class="q-mb-md"
-        style="border-radius: 16px"
-      >
-        <q-card-section>
-          <div class="text-subtitle1 text-weight-bold">Distribución del patrimonio</div>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <apexchart
-            type="donut"
-            height="280"
-            :options="donutOptions"
-            :series="donutSeries"
-          />
-        </q-card-section>
-      </q-card>
 
       <!-- Evolución -->
       <q-card
         v-if="portfolio.snapshots.length >= 2"
+        class="q-mb-md"
         style="border-radius: 16px"
       >
         <q-card-section>
