@@ -18,23 +18,26 @@ export const usePortfolioStore = defineStore('portfolio', () => {
 
   async function init() {
     loading.value = true
-    ;[accounts.value, investments.value, assets.value, snapshots.value, freeExpenses.value, contacts.value, settlements.value] = await Promise.all([
-      StorageService.getAccounts(),
-      StorageService.getInvestments(),
-      StorageService.getAssets(),
-      StorageService.getSnapshots(),
-      StorageService.getFreeExpenses(),
-      StorageService.getContacts(),
-      StorageService.getSettlements(),
-    ])
+    try {
+      ;[accounts.value, investments.value, assets.value, snapshots.value, freeExpenses.value, contacts.value, settlements.value] = await Promise.all([
+        StorageService.getAccounts(),
+        StorageService.getInvestments(),
+        StorageService.getAssets(),
+        StorageService.getSnapshots(),
+        StorageService.getFreeExpenses(),
+        StorageService.getContacts(),
+        StorageService.getSettlements(),
+      ])
 
-    const rates = await DolarService.getRates()
-    dolarBlue.value = rates.blue
-    dolarOficial.value = rates.oficial
-    dolarMep.value = rates.mep
+      const rates = await DolarService.getRates()
+      dolarBlue.value = rates.blue
+      dolarOficial.value = rates.oficial
+      dolarMep.value = rates.mep
 
-    loading.value = false
-    void saveSnapshot()
+      void saveSnapshot()
+    } finally {
+      loading.value = false
+    }
   }
 
   function toARS(amount: number, currency: 'ARS' | 'USD'): number {
