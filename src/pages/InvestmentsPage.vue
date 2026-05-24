@@ -257,6 +257,7 @@ const chartSeries = computed(() =>
 )
 
 const chartOptions = computed(() => ({
+  chart: { toolbar: { show: false }, zoom: { enabled: false } },
   labels: portfolio.investments.map(i => i.name),
   legend: { position: 'bottom' },
   dataLabels: { enabled: true, formatter: (val: number) => `${val.toFixed(0)}%` },
@@ -306,3 +307,9 @@ function confirmDelete(id: string) {
   })
 }
 </script>
+
+<style scoped>
+:deep(.apexcharts-canvas) {
+  touch-action: pan-y !important;
+}
+</style>

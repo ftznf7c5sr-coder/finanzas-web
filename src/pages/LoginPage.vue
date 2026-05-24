@@ -5,7 +5,7 @@
       <!-- Header -->
       <q-card-section class="text-center q-pb-sm">
         <q-icon name="account_balance_wallet" size="64px" color="primary" />
-        <div class="text-h5 text-weight-bold q-mt-sm">Finanzas Puchi</div>
+        <div class="text-h5 text-weight-bold q-mt-sm">Finanzas</div>
         <div class="text-grey-6 text-body2 q-mt-xs">
           <span v-if="step === 'credentials'">{{ isRegistered ? 'Ingresá para continuar' : 'Creá tu cuenta para empezar' }}</span>
           <span v-else-if="step === 'totp'">Verificación en dos pasos</span>

@@ -753,7 +753,7 @@ const chartOptions = computed(() => {
   }))
 
   return {
-    chart: { toolbar: { show: false } },
+    chart: { toolbar: { show: false }, zoom: { enabled: false }, selection: { enabled: false } },
     stroke: { curve: 'smooth', width: 2 },
     fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05 } },
     colors: ['#1976D2'],
@@ -769,3 +769,9 @@ const chartOptions = computed(() => {
   }
 })
 </script>
+
+<style scoped>
+:deep(.apexcharts-canvas) {
+  touch-action: pan-y !important;
+}
+</style>

@@ -2,8 +2,8 @@
   "name": "finanzas-puchi",
   "version": "1.0.0",
   "description": "App de seguimiento de finanzas e inversiones personales",
-  "productName": "Finanzas Puchi",
-  "author": "Puchi",
+  "productName": "Finanzas",
+  "author": "Finanzas",
   "private": true,
   "scripts": {
     "dev": "quasar dev",

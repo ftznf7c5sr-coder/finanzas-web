@@ -3,7 +3,7 @@
     <q-header elevated class="bg-primary">
       <q-toolbar>
         <q-btn flat dense round icon="menu" aria-label="Menu" @click="drawer = !drawer" />
-        <q-toolbar-title class="text-weight-bold">Finanzas Puchi</q-toolbar-title>
+        <q-toolbar-title class="text-weight-bold">Finanzas</q-toolbar-title>
         <q-btn flat dense round icon="logout" @click="handleLogout">
           <q-tooltip>Cerrar sesión</q-tooltip>
         </q-btn>

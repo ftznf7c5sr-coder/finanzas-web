@@ -1,27 +1,39 @@
 <template>
   <q-page class="q-pa-md">
-    <div v-if="portfolio.loading" class="flex flex-center" style="min-height: 60vh">
-      <div class="text-center">
-        <q-spinner size="48px" color="primary" />
-        <div class="text-grey q-mt-md">Cargando cotizaciones...</div>
+    <!-- Skeleton loading -->
+    <div v-if="portfolio.loading">
+      <div class="row q-gutter-sm q-mb-md">
+        <q-skeleton v-for="i in 3" :key="i" type="QChip" width="110px" />
       </div>
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-12 col-sm-6"><q-skeleton type="rect" height="100px" style="border-radius:16px" /></div>
+        <div class="col-12 col-sm-6"><q-skeleton type="rect" height="100px" style="border-radius:16px" /></div>
+      </div>
+      <div class="row q-col-gutter-sm q-mb-md">
+        <div v-for="i in 3" :key="i" class="col-4"><q-skeleton type="rect" height="72px" style="border-radius:12px" /></div>
+      </div>
+      <q-skeleton type="rect" height="300px" style="border-radius:16px" class="q-mb-md" />
     </div>
 
     <template v-else>
       <!-- Dólar strip -->
-      <div class="row q-gutter-sm q-mb-md">
-        <q-chip
+      <div class="row items-center q-gutter-sm q-mb-md">
+        <q-card
           v-for="d in dolarChips"
           :key="d.label"
-          :icon="d.icon"
-          :color="d.color"
-          text-color="white"
-          class="text-weight-medium"
+          flat
+          bordered
+          class="dolar-chip"
+          style="border-radius: 10px; cursor: default"
         >
-          {{ d.label }}: ${{ fmt(d.value) }}
-        </q-chip>
+          <q-card-section class="q-pa-sm row items-center no-wrap q-gutter-xs">
+            <q-icon :name="d.icon" :color="d.color" size="16px" />
+            <span class="text-caption text-weight-bold" :style="`color: var(--q-${d.color})`">{{ d.label }}</span>
+            <span class="text-caption text-weight-bold text-grey-8">${{ fmt(d.value) }}</span>
+          </q-card-section>
+        </q-card>
         <q-space />
-        <q-btn flat round dense icon="refresh" color="grey" @click="portfolio.init()">
+        <q-btn unelevated round dense icon="refresh" color="primary" size="sm" @click="portfolio.init()">
           <q-tooltip>Actualizar cotizaciones</q-tooltip>
         </q-btn>
       </div>
@@ -101,11 +113,12 @@
               :options="[{ label: 'ARS', value: 'ARS' }, { label: 'USD', value: 'USD' }]"
               unelevated
               dense
-              color="primary"
-              text-color="primary"
+              rounded
+              color="grey-2"
+              text-color="grey-8"
               toggle-color="primary"
               toggle-text-color="white"
-              class="q-ml-sm"
+              class="q-ml-sm currency-toggle"
             />
           </div>
         </q-card-section>
@@ -236,6 +249,7 @@ const donutSeries = computed(() =>
 )
 
 const donutOptions = {
+  chart: { toolbar: { show: false }, zoom: { enabled: false } },
   labels: ['Cuentas', 'Inversiones', 'Bienes'],
   colors: ['#1976D2', '#26A69A', '#7C4DFF'],
   legend: { position: 'bottom' },
@@ -257,7 +271,13 @@ const lineSeries = computed(() => [{
 }])
 
 const lineOptions = computed(() => ({
-  chart: { type: 'area', toolbar: { show: false }, sparkline: { enabled: false } },
+  chart: {
+    type: 'area',
+    toolbar: { show: false },
+    sparkline: { enabled: false },
+    zoom: { enabled: false },
+    selection: { enabled: false },
+  },
   stroke: { curve: 'smooth', width: 2 },
   fill: { type: 'gradient', gradient: { opacityFrom: 0.4, opacityTo: 0.05 } },
   xaxis: { type: 'datetime', labels: { datetimeFormatter: { month: 'MMM' } } },
@@ -282,3 +302,18 @@ const lineOptions = computed(() => ({
   grid: { borderColor: '#f0f0f0' }
 }))
 </script>
+
+<style scoped>
+.dolar-chip {
+  min-width: 90px;
+}
+.currency-toggle {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+/* Prevent charts from hijacking touch scroll on mobile */
+:deep(.apexcharts-canvas) {
+  touch-action: pan-y !important;
+}
+</style>

@@ -76,7 +76,7 @@ async function verifyTotp(secret: string, token: string): Promise<boolean> {
 }
 
 function totpUri(secret: string, username: string): string {
-  const issuer = 'Finanzas Puchi'
+  const issuer = 'Finanzas'
   const label = encodeURIComponent(`${issuer}:${username}`)
   return `otpauth://totp/${label}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`
 }
