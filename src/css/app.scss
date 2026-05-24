@@ -13,6 +13,22 @@
 }
 
 .q-page {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
+}
+
+// Dropdown options compactos en desktop
+.q-menu .q-item,
+.q-select__dialog .q-item {
+  min-height: 36px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+// Dialogs con ancho razonable en desktop
+.q-dialog__inner > .q-card {
+  width: min(560px, 96vw);
+}
+.q-dialog__inner--minimized > .q-card {
+  max-width: min(560px, 96vw);
 }

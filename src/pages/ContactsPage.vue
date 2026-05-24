@@ -90,7 +90,7 @@
 
     <!-- Dialog saldar deuda -->
     <q-dialog v-model="showSettle" persistent>
-      <q-card style="min-width: min(400px, 96vw); max-width: 440px">
+      <q-card>
         <q-card-section class="row items-center">
           <q-icon name="handshake" color="positive" size="24px" class="q-mr-sm" />
           <div class="text-h6">Registrar pago</div>

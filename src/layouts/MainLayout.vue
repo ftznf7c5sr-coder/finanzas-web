@@ -50,7 +50,7 @@
 
     <!-- Dialog seguridad / 2FA -->
     <q-dialog v-model="showSecurity" persistent>
-      <q-card style="min-width: 320px; max-width: 440px">
+      <q-card>
         <q-card-section class="row items-center">
           <div class="text-h6">Seguridad</div>
           <q-space />

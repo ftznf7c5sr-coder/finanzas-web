@@ -67,7 +67,7 @@
 
     <!-- Dialog -->
     <q-dialog v-model="showDialog" persistent>
-      <q-card style="min-width: 320px; max-width: 480px">
+      <q-card>
         <q-card-section class="row items-center">
           <div class="text-h6">{{ editingId ? 'Editar' : 'Nuevo' }} bien</div>
           <q-space />
