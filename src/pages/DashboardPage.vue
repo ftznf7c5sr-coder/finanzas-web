@@ -210,15 +210,18 @@
         </div>
       </div>
 
-      <!-- Evolución (solo en vista Todos, los snapshots son del patrimonio total) -->
+      <!-- Evolución del patrimonio total -->
       <q-card
-        v-if="portfolio.snapshots.length >= 2 && selectedOwner === ''"
+        v-if="portfolio.snapshots.length >= 2"
         class="q-mb-md"
         style="border-radius: 16px"
       >
         <q-card-section>
           <div class="row items-center">
-            <div class="text-subtitle1 text-weight-bold col">Evolución del patrimonio</div>
+            <div class="col">
+              <div class="text-subtitle1 text-weight-bold">Evolución del patrimonio</div>
+              <div v-if="selectedOwner" class="text-caption text-grey-5">Total general (el historial no está separado por persona)</div>
+            </div>
             <q-btn-toggle
               v-model="chartCurrency"
               :options="[{ label: 'ARS', value: 'ARS' }, { label: 'USD', value: 'USD' }]"
