@@ -437,15 +437,34 @@ const hasAnySharedExpense = computed(() =>
   Object.values(portfolio.globalParticipantBalances).some(b => Math.abs(b as number) >= 0.01)
 )
 
-const donutSeries = computed(() =>
-  [filteredTotalAccountsARS.value, filteredTotalInvestmentsARS.value, filteredTotalAssetsARS.value]
-    .map(v => Math.max(0, Math.round(v)))
-)
+const donutCategories = [
+  { label: 'Cuentas', color: '#1976D2' },
+  { label: 'Inversiones', color: '#26A69A' },
+  { label: 'Bienes', color: '#7C4DFF' },
+]
 
-const donutOptions = {
+const donutData = computed(() => {
+  const raw = [
+    filteredTotalAccountsARS.value,
+    filteredTotalInvestmentsARS.value,
+    filteredTotalAssetsARS.value,
+  ]
+  const filtered = donutCategories
+    .map((c, i) => ({ ...c, value: Math.max(0, Math.round(raw[i] ?? 0)) }))
+    .filter(c => c.value > 0)
+  return {
+    series: filtered.map(c => c.value),
+    labels: filtered.map(c => c.label),
+    colors: filtered.map(c => c.color),
+  }
+})
+
+const donutSeries = computed(() => donutData.value.series)
+
+const donutOptions = computed(() => ({
   chart: { toolbar: { show: false }, zoom: { enabled: false } },
-  labels: ['Cuentas', 'Inversiones', 'Bienes'],
-  colors: ['#1976D2', '#26A69A', '#7C4DFF'],
+  labels: donutData.value.labels,
+  colors: donutData.value.colors,
   legend: { position: 'bottom' },
   dataLabels: { enabled: true, formatter: (val: number) => `${val.toFixed(0)}%` },
   plotOptions: { pie: { donut: { size: '60%' } } },
@@ -454,7 +473,7 @@ const donutOptions = {
       formatter: (val: number) => `$ ${new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(val)}`
     }
   }
-}
+}))
 
 const lineSeries = computed(() => [{
   name: chartCurrency.value === 'ARS' ? 'Patrimonio ARS' : 'Patrimonio USD',
