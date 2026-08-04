@@ -210,9 +210,21 @@
         </div>
       </div>
 
-      <!-- Evolución del patrimonio total -->
+      <!-- Sin historial individual todavía -->
       <q-card
-        v-if="portfolio.snapshots.length >= 2"
+        v-if="selectedOwner && ownerSnapshots.length < 2"
+        flat bordered
+        class="q-mb-md text-center q-py-md"
+        style="border-radius: 16px"
+      >
+        <q-icon name="show_chart" size="36px" color="grey-4" />
+        <div class="text-grey-5 q-mt-xs">El historial de {{ selectedOwner }} se va acumulando día a día</div>
+        <div class="text-caption text-grey-4">Aparecerá el gráfico a partir del segundo día con datos</div>
+      </q-card>
+
+      <!-- Evolución del patrimonio -->
+      <q-card
+        v-if="ownerSnapshots.length >= 2"
         class="q-mb-md"
         style="border-radius: 16px"
       >
@@ -220,7 +232,6 @@
           <div class="row items-center">
             <div class="col">
               <div class="text-subtitle1 text-weight-bold">Evolución del patrimonio</div>
-              <div v-if="selectedOwner" class="text-caption text-grey-5">Total general (el historial no está separado por persona)</div>
             </div>
             <q-btn-toggle
               v-model="chartCurrency"
@@ -478,11 +489,24 @@ const donutOptions = computed(() => ({
   }
 }))
 
+const ownerSnapshots = computed(() => {
+  if (!selectedOwner.value) return portfolio.snapshots
+  return portfolio.snapshots.filter(s => s.byOwner?.[selectedOwner.value] != null)
+})
+
 const lineSeries = computed(() => [{
-  name: chartCurrency.value === 'ARS' ? 'Patrimonio ARS' : 'Patrimonio USD',
-  data: portfolio.snapshots.map(s => ({
+  name: selectedOwner.value
+    ? `${selectedOwner.value} (${chartCurrency.value})`
+    : (chartCurrency.value === 'ARS' ? 'Patrimonio ARS' : 'Patrimonio USD'),
+  data: ownerSnapshots.value.map(s => ({
     x: new Date(s.date).getTime(),
-    y: Math.round(chartCurrency.value === 'ARS' ? s.totalARS : s.totalUSD)
+    y: Math.round(
+      selectedOwner.value
+        ? (chartCurrency.value === 'ARS'
+            ? (s.byOwner?.[selectedOwner.value]?.totalARS ?? 0)
+            : (s.byOwner?.[selectedOwner.value]?.totalUSD ?? 0))
+        : (chartCurrency.value === 'ARS' ? s.totalARS : s.totalUSD)
+    )
   }))
 }])
 

@@ -95,6 +95,7 @@ export interface PortfolioSnapshot {
   date: string
   totalARS: number
   totalUSD: number
+  byOwner?: Record<string, { totalARS: number; totalUSD: number }>
 }
 
 function uid(): string {

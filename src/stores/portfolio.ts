@@ -419,10 +419,33 @@ export const usePortfolioStore = defineStore('portfolio', () => {
 
   async function saveSnapshot() {
     const today = new Date().toISOString().split('T')[0]
+
+    const ownerNames = [...new Set([
+      ...accounts.value.map(a => a.owner ?? ''),
+      ...investments.value.map(i => i.owner ?? ''),
+      ...assets.value.map(a => a.owner ?? '')
+    ])].filter(n => n !== '')
+
+    const byOwner: Record<string, { totalARS: number; totalUSD: number }> = {}
+    for (const name of ownerNames) {
+      const ownerARS =
+        accounts.value.filter(a => (a.owner ?? '') === name)
+          .reduce((s, a) => s + toARS(accountEffectiveBalance(a), a.currency), 0) +
+        investments.value.filter(i => (i.owner ?? '') === name)
+          .reduce((s, i) => s + toARS(i.quantity * i.currentPrice, i.currency), 0) +
+        assets.value.filter(a => (a.owner ?? '') === name)
+          .reduce((s, a) => s + toARS(a.value, a.currency), 0)
+      byOwner[name] = {
+        totalARS: ownerARS,
+        totalUSD: dolarBlue.value > 0 ? ownerARS / dolarBlue.value : 0
+      }
+    }
+
     const snapshot: PortfolioSnapshot = {
       date: today,
       totalARS: totalPatrimonioARS.value,
-      totalUSD: totalPatrimonioUSD.value
+      totalUSD: totalPatrimonioUSD.value,
+      ...(ownerNames.length > 0 ? { byOwner } : {})
     }
     snapshots.value = await StorageService.addSnapshot(snapshot)
   }
