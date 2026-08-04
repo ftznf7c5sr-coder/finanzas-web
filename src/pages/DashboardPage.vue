@@ -204,7 +204,7 @@
               <div class="text-subtitle2 text-weight-bold">Distribución</div>
             </q-card-section>
             <q-card-section class="q-pt-none flex flex-center">
-              <apexchart type="donut" height="185" :options="donutOptions" :series="donutSeries" />
+              <apexchart :key="selectedOwner + '-donut'" type="donut" height="185" :options="donutOptions" :series="donutSeries" />
             </q-card-section>
           </q-card>
         </div>
