@@ -141,6 +141,23 @@
           <q-input v-model="form.depositDate" label="Fecha de ingreso del saldo"
             outlined dense type="date"
             hint="Desde esta fecha se calculan los intereses" />
+          <q-select
+            v-if="portfolio.contacts.length > 0"
+            v-model="form.owner"
+            :options="['', ...portfolio.contacts.map(c => c.name)]"
+            label="Propietario (opcional)"
+            outlined dense clearable
+            hint="Persona a quien pertenece esta cuenta"
+          >
+            <template #option="{ opt, selected, toggleOption }">
+              <q-item clickable :active="selected" @click="toggleOption(opt)">
+                <q-item-section>{{ opt || 'Sin asignar' }}</q-item-section>
+              </q-item>
+            </template>
+            <template #selected>
+              <span>{{ form.owner || 'Sin asignar' }}</span>
+            </template>
+          </q-select>
         </q-card-section>
         <q-separator />
         <q-card-actions align="right">
@@ -475,7 +492,8 @@ const defaultForm = () => ({
   currency: 'ARS' as 'ARS' | 'USD',
   balance: 0,
   tna: 0,
-  depositDate: new Date().toISOString().split('T')[0]
+  depositDate: new Date().toISOString().split('T')[0],
+  owner: ''
 })
 const form = ref(defaultForm())
 
@@ -535,7 +553,8 @@ function openDialog(acc?: Account) {
     form.value = {
       name: acc.name, type: acc.type, currency: acc.currency, balance: acc.balance,
       tna: portfolio.currentTna(acc),
-      depositDate: (acc.balanceUpdatedAt || acc.createdAt).split('T')[0]
+      depositDate: (acc.balanceUpdatedAt || acc.createdAt).split('T')[0],
+      owner: acc.owner ?? ''
     }
   } else {
     editingId.value = null
@@ -562,7 +581,8 @@ function saveAccount() {
       currency: form.value.currency,
       balance: Number(form.value.balance) || 0,
       tna: Number(form.value.tna) || 0,
-      balanceUpdatedAt
+      balanceUpdatedAt,
+      owner: form.value.owner
     }
     if (editingId.value) {
       portfolio.updateAccount(editingId.value, data)

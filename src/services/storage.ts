@@ -35,6 +35,7 @@ export interface Account {
   createdAt: string
   movements?: Movement[]
   participants?: string[]
+  owner?: string
 }
 
 export interface Investment {
@@ -48,6 +49,7 @@ export interface Investment {
   currentPrice: number
   createdAt: string
   updatedAt: string
+  owner?: string
 }
 
 export interface Asset {
@@ -57,6 +59,7 @@ export interface Asset {
   currency: 'ARS' | 'USD'
   value: number
   createdAt: string
+  owner?: string
 }
 
 export interface Contact {

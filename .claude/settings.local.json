@@ -9,7 +9,10 @@
       "Bash(git push *)",
       "Bash(gh auth *)",
       "Bash(ssh -T git@github.com)",
-      "Bash(xargs ls)"
+      "Bash(xargs ls)",
+      "Bash(quasar build *)",
+      "Bash(npx quasar *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

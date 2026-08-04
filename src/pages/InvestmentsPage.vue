@@ -238,6 +238,24 @@
             />
           </div>
 
+          <q-select
+            v-if="portfolio.contacts.length > 0"
+            v-model="form.owner"
+            :options="['', ...portfolio.contacts.map(c => c.name)]"
+            label="Propietario (opcional)"
+            outlined dense clearable
+            hint="Persona a quien pertenece esta inversión"
+          >
+            <template #option="{ opt, selected, toggleOption }">
+              <q-item clickable :active="selected" @click="toggleOption(opt)">
+                <q-item-section>{{ opt || 'Sin asignar' }}</q-item-section>
+              </q-item>
+            </template>
+            <template #selected>
+              <span>{{ form.owner || 'Sin asignar' }}</span>
+            </template>
+          </q-select>
+
           <q-banner v-if="form.quantity && form.currentPrice" class="bg-blue-1 rounded-borders">
             <div class="text-caption text-grey-7">Vista previa</div>
             <div class="text-body2">
@@ -362,7 +380,8 @@ const defaultForm = () => ({
   name: '', ticker: '',
   type: 'stock' as Investment['type'],
   currency: 'ARS' as 'ARS' | 'USD',
-  quantity: 0, avgPrice: 0, currentPrice: 0
+  quantity: 0, avgPrice: 0, currentPrice: 0,
+  owner: ''
 })
 
 const form = ref(defaultForm())
@@ -463,7 +482,7 @@ const chartOptions = computed(() => ({
 function openDialog(inv?: Investment) {
   if (inv) {
     editingId.value = inv.id
-    form.value = { ...inv }
+    form.value = { ...inv, owner: inv.owner ?? '' }
   } else {
     editingId.value = null
     form.value = defaultForm()

@@ -16,6 +16,26 @@
     </div>
 
     <template v-else>
+      <!-- Tabs personas -->
+      <div v-if="portfolio.contacts.length > 0" class="q-mb-md">
+        <q-tabs
+          v-model="selectedOwner"
+          dense align="left"
+          indicator-color="primary"
+          narrow-indicator
+          active-color="primary"
+        >
+          <q-tab name="" label="Todos" />
+          <q-tab
+            v-for="c in portfolio.contacts"
+            :key="c.id"
+            :name="c.name"
+            :label="c.name"
+          />
+        </q-tabs>
+        <q-separator />
+      </div>
+
       <!-- Dólar strip -->
       <div class="row items-center q-gutter-sm q-mb-md">
         <q-card
@@ -45,7 +65,7 @@
             <q-card-section>
               <div class="text-overline opacity-80">PATRIMONIO TOTAL · ARS</div>
               <div class="text-h4 text-weight-bold q-mt-xs">
-                $&nbsp;{{ fmt(portfolio.totalPatrimonioARS) }}
+                $&nbsp;{{ fmt(filteredTotalARS) }}
               </div>
               <div class="text-caption opacity-70 q-mt-xs">
                 Calculado al dólar blue
@@ -58,7 +78,7 @@
             <q-card-section>
               <div class="text-overline opacity-80">PATRIMONIO TOTAL · USD</div>
               <div class="text-h4 text-weight-bold q-mt-xs">
-                U$D&nbsp;{{ fmt(portfolio.totalPatrimonioUSD) }}
+                U$D&nbsp;{{ fmt(filteredTotalUSD) }}
               </div>
               <div class="text-caption opacity-70 q-mt-xs">
                 Al tipo de cambio blue
@@ -69,7 +89,7 @@
       </div>
 
       <!-- Breakdown + Distribución -->
-      <div v-if="portfolio.totalPatrimonioARS > 0" class="row q-col-gutter-md q-mb-md">
+      <div v-if="filteredTotalARS > 0" class="row q-col-gutter-md q-mb-md">
         <!-- Izquierda: botones de categoría + detalle -->
         <div class="col-12 col-sm-7">
           <!-- Botones categoría -->
@@ -113,7 +133,7 @@
               </div>
               <q-separator class="q-my-sm" />
               <div class="text-caption text-grey-6 q-mb-xs">{{ accountsDetail.count }} cuenta{{ accountsDetail.count !== 1 ? 's' : '' }}</div>
-              <div v-for="a in portfolio.accounts" :key="a.id" class="row items-center q-mb-xs">
+              <div v-for="a in filteredAccounts" :key="a.id" class="row items-center q-mb-xs">
                 <q-icon name="account_balance" color="blue-3" size="14px" class="q-mr-xs" />
                 <span class="text-caption col">{{ a.name }}</span>
                 <span class="text-caption text-weight-bold">$ {{ fmtShort(portfolio.accountEffectiveBalance(a)) }}</span>
@@ -143,7 +163,7 @@
               </div>
               <q-separator class="q-my-sm" />
               <div class="text-caption text-grey-6 q-mb-xs">{{ investmentsDetail.count }} instrumento{{ investmentsDetail.count !== 1 ? 's' : '' }}</div>
-              <div v-for="inv in portfolio.investments" :key="inv.id" class="row items-center q-mb-xs">
+              <div v-for="inv in filteredInvestments" :key="inv.id" class="row items-center q-mb-xs">
                 <q-icon name="trending_up" color="teal-3" size="14px" class="q-mr-xs" />
                 <span class="text-caption col">{{ inv.name }}</span>
                 <span class="text-caption text-weight-bold" :class="(inv.currentPrice - inv.avgPrice) >= 0 ? 'text-positive' : 'text-negative'">
@@ -190,9 +210,9 @@
         </div>
       </div>
 
-      <!-- Evolución -->
+      <!-- Evolución (solo en vista Todos, los snapshots son del patrimonio total) -->
       <q-card
-        v-if="portfolio.snapshots.length >= 2"
+        v-if="portfolio.snapshots.length >= 2 && selectedOwner === ''"
         class="q-mb-md"
         style="border-radius: 16px"
       >
@@ -284,14 +304,20 @@
       </q-card>
 
       <!-- Empty state -->
-      <q-card v-if="portfolio.totalPatrimonioARS === 0" style="border-radius: 16px">
+      <q-card v-if="filteredTotalARS === 0" style="border-radius: 16px">
         <q-card-section class="text-center q-py-xl">
           <q-icon name="account_balance_wallet" size="64px" color="grey-4" />
-          <div class="text-h6 text-grey-5 q-mt-md">Tu patrimonio está vacío</div>
-          <div class="text-grey-5 q-mt-xs">Agregá cuentas, inversiones o bienes para empezar</div>
-          <div class="row q-gutter-sm justify-center q-mt-lg">
-            <q-btn outline color="primary" label="Agregar cuenta" icon="account_balance" :to="{ name: 'accounts' }" />
-            <q-btn outline color="teal" label="Agregar inversión" icon="trending_up" :to="{ name: 'investments' }" />
+          <div v-if="selectedOwner && portfolio.totalPatrimonioARS > 0">
+            <div class="text-h6 text-grey-5 q-mt-md">{{ selectedOwner }} no tiene patrimonio asignado</div>
+            <div class="text-grey-5 q-mt-xs">Editá cuentas, inversiones o bienes y asignalos a esta persona</div>
+          </div>
+          <div v-else>
+            <div class="text-h6 text-grey-5 q-mt-md">Tu patrimonio está vacío</div>
+            <div class="text-grey-5 q-mt-xs">Agregá cuentas, inversiones o bienes para empezar</div>
+            <div class="row q-gutter-sm justify-center q-mt-lg">
+              <q-btn outline color="primary" label="Agregar cuenta" icon="account_balance" :to="{ name: 'accounts' }" />
+              <q-btn outline color="teal" label="Agregar inversión" icon="trending_up" :to="{ name: 'investments' }" />
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -306,12 +332,55 @@ import { usePortfolioStore } from '../stores/portfolio'
 const portfolio = usePortfolioStore()
 const chartCurrency = ref<'ARS' | 'USD'>('ARS')
 const selectedCategory = ref<'accounts' | 'investments' | 'assets' | null>(null)
+const selectedOwner = ref('')
 
 function toggleCategory(key: 'accounts' | 'investments' | 'assets') {
   selectedCategory.value = selectedCategory.value === key ? null : key
 }
 
 onMounted(() => portfolio.init())
+
+// Filtered by owner ('' = Todos)
+const filteredAccounts = computed(() =>
+  selectedOwner.value === ''
+    ? portfolio.accounts
+    : portfolio.accounts.filter(a => (a.owner ?? '') === selectedOwner.value)
+)
+
+const filteredInvestments = computed(() =>
+  selectedOwner.value === ''
+    ? portfolio.investments
+    : portfolio.investments.filter(i => (i.owner ?? '') === selectedOwner.value)
+)
+
+const filteredAssets = computed(() =>
+  selectedOwner.value === ''
+    ? portfolio.assets
+    : portfolio.assets.filter(a => (a.owner ?? '') === selectedOwner.value)
+)
+
+const filteredTotalAccountsARS = computed(() =>
+  filteredAccounts.value.reduce(
+    (sum, a) => sum + portfolio.toARS(portfolio.accountEffectiveBalance(a), a.currency), 0)
+)
+
+const filteredTotalInvestmentsARS = computed(() =>
+  filteredInvestments.value.reduce(
+    (sum, inv) => sum + portfolio.toARS(inv.quantity * inv.currentPrice, inv.currency), 0)
+)
+
+const filteredTotalAssetsARS = computed(() =>
+  filteredAssets.value.reduce(
+    (sum, a) => sum + portfolio.toARS(a.value, a.currency), 0)
+)
+
+const filteredTotalARS = computed(() =>
+  filteredTotalAccountsARS.value + filteredTotalInvestmentsARS.value + filteredTotalAssetsARS.value
+)
+
+const filteredTotalUSD = computed(() =>
+  portfolio.dolarBlue > 0 ? filteredTotalARS.value / portfolio.dolarBlue : 0
+)
 
 function fmt(n: number): string {
   return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(n)
@@ -330,14 +399,14 @@ const dolarChips = computed(() => [
 ].filter(d => d.value > 0))
 
 const breakdownCards = computed(() => [
-  { key: 'accounts' as const, label: 'Cuentas', value: portfolio.totalAccountsARS, icon: 'account_balance', color: 'blue' },
-  { key: 'investments' as const, label: 'Inversiones', value: portfolio.totalInvestmentsARS, icon: 'trending_up', color: 'teal' },
-  { key: 'assets' as const, label: 'Bienes', value: portfolio.totalAssetsARS, icon: 'home', color: 'purple' }
+  { key: 'accounts' as const, label: 'Cuentas', value: filteredTotalAccountsARS.value, icon: 'account_balance', color: 'blue' },
+  { key: 'investments' as const, label: 'Inversiones', value: filteredTotalInvestmentsARS.value, icon: 'trending_up', color: 'teal' },
+  { key: 'assets' as const, label: 'Bienes', value: filteredTotalAssetsARS.value, icon: 'home', color: 'purple' }
 ])
 
 const accountsDetail = computed(() => {
-  const accs = portfolio.accounts
-  const totalARS = portfolio.totalAccountsARS
+  const accs = filteredAccounts.value
+  const totalARS = filteredTotalAccountsARS.value
   const totalUSD = portfolio.dolarBlue > 0 ? totalARS / portfolio.dolarBlue : 0
   const totalInterest = accs.reduce((sum, a) => sum + portfolio.toARS(portfolio.accountInterest(a), a.currency), 0)
   const projectedMonthly = accs.reduce((sum, a) => {
@@ -348,17 +417,17 @@ const accountsDetail = computed(() => {
 })
 
 const investmentsDetail = computed(() => {
-  const invs = portfolio.investments
+  const invs = filteredInvestments.value
   const totalCost = invs.reduce((sum, i) => sum + portfolio.toARS(i.quantity * i.avgPrice, i.currency), 0)
-  const totalValue = portfolio.totalInvestmentsARS
+  const totalValue = filteredTotalInvestmentsARS.value
   const gain = totalValue - totalCost
   const gainPct = totalCost > 0 ? (gain / totalCost) * 100 : 0
   return { count: invs.length, totalCost, totalValue, gain, gainPct }
 })
 
 const assetsDetail = computed(() => {
-  const ass = portfolio.assets
-  const totalARS = portfolio.totalAssetsARS
+  const ass = filteredAssets.value
+  const totalARS = filteredTotalAssetsARS.value
   const totalUSD = portfolio.dolarBlue > 0 ? totalARS / portfolio.dolarBlue : 0
   const list = [...ass].sort((a, b) => portfolio.toARS(b.value, b.currency) - portfolio.toARS(a.value, a.currency))
   return { count: ass.length, totalARS, totalUSD, list }
@@ -369,7 +438,7 @@ const hasAnySharedExpense = computed(() =>
 )
 
 const donutSeries = computed(() =>
-  [portfolio.totalAccountsARS, portfolio.totalInvestmentsARS, portfolio.totalAssetsARS]
+  [filteredTotalAccountsARS.value, filteredTotalInvestmentsARS.value, filteredTotalAssetsARS.value]
     .map(v => Math.max(0, Math.round(v)))
 )
 

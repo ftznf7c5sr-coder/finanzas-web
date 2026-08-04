@@ -115,6 +115,24 @@
               <strong>U$D {{ fmt(form.value / portfolio.dolarBlue) }}</strong> (blue)
             </div>
           </q-banner>
+
+          <q-select
+            v-if="portfolio.contacts.length > 0"
+            v-model="form.owner"
+            :options="['', ...portfolio.contacts.map(c => c.name)]"
+            label="Propietario (opcional)"
+            outlined dense clearable
+            hint="Persona a quien pertenece este bien"
+          >
+            <template #option="{ opt, selected, toggleOption }">
+              <q-item clickable :active="selected" @click="toggleOption(opt)">
+                <q-item-section>{{ opt || 'Sin asignar' }}</q-item-section>
+              </q-item>
+            </template>
+            <template #selected>
+              <span>{{ form.owner || 'Sin asignar' }}</span>
+            </template>
+          </q-select>
         </q-card-section>
 
         <q-separator />
@@ -150,7 +168,8 @@ const defaultForm = () => ({
   name: '',
   type: 'property' as Asset['type'],
   currency: 'USD' as 'ARS' | 'USD',
-  value: 0
+  value: 0,
+  owner: ''
 })
 
 const form = ref(defaultForm())
@@ -180,7 +199,7 @@ function fmt(n: number): string {
 function openDialog(asset?: Asset) {
   if (asset) {
     editingId.value = asset.id
-    form.value = { name: asset.name, type: asset.type, currency: asset.currency, value: asset.value }
+    form.value = { name: asset.name, type: asset.type, currency: asset.currency, value: asset.value, owner: asset.owner ?? '' }
   } else {
     editingId.value = null
     form.value = defaultForm()
