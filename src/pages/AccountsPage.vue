@@ -104,6 +104,7 @@
                 </div>
               </div>
             </div>
+          </q-card-section>
           <!-- Botón historial -->
           <q-separator class="q-mt-sm" />
           <q-card-actions class="q-pa-sm" @click.stop>
