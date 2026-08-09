@@ -295,7 +295,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     }
     const updated = { ...acc, movements: [...(acc.movements ?? []), movement] }
     accounts.value[idx] = updated
-    void StorageService.saveAccount(updated)
+    StorageService.saveAccount(updated).catch(err => console.error('Error guardando movimiento:', err))
     void saveSnapshot()
   }
 
@@ -312,7 +312,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       )
     }
     accounts.value[idx] = updated
-    void StorageService.saveAccount(updated)
+    StorageService.saveAccount(updated).catch(err => console.error('Error actualizando movimiento:', err))
     void saveSnapshot()
   }
 

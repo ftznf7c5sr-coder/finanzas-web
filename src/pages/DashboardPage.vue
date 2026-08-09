@@ -352,7 +352,7 @@ function toggleCategory(key: 'accounts' | 'investments' | 'assets') {
   selectedCategory.value = selectedCategory.value === key ? null : key
 }
 
-onMounted(() => portfolio.init())
+onMounted(() => { if (!portfolio.accounts.length && !portfolio.loading) void portfolio.init() })
 
 // Filtered by owner ('' = Todos)
 const filteredAccounts = computed(() =>
