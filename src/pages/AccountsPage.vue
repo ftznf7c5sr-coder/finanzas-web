@@ -104,7 +104,12 @@
                 </div>
               </div>
             </div>
-          </q-card-section>
+          <!-- Botón historial -->
+          <q-separator class="q-mt-sm" />
+          <q-card-actions class="q-pa-sm" @click.stop>
+            <q-btn flat dense size="sm" icon="history" color="primary" label="Historial y movimientos"
+              class="full-width" @click="openDetail(acc)" />
+          </q-card-actions>
         </q-card>
       </div>
     </div>
@@ -169,8 +174,8 @@
     </q-dialog>
 
     <!-- Dialog historial -->
-    <q-dialog v-model="showDetail" :maximized="$q.screen.lt.sm">
-      <q-card style="min-width: min(720px, 96vw); max-width: 800px; border-radius: 16px">
+    <q-dialog v-model="showDetail" :maximized="$q.screen.lt.md">
+      <q-card style="width: min(760px, 96vw); max-height: 90vh; overflow-y: auto; border-radius: 16px">
         <q-card-section class="row items-center q-pb-none">
           <div v-if="detailAcc">
             <div class="text-h6 text-weight-bold">{{ detailAcc.name }}</div>
