@@ -290,8 +290,8 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       amount: data.amount,
       description: data.description,
       date: new Date(data.date).toISOString(),
-      paidBy: data.paidBy || undefined,
-      splits: data.splits?.length ? data.splits : undefined
+      ...(data.paidBy ? { paidBy: data.paidBy } : {}),
+      ...(data.splits?.length ? { splits: data.splits } : {})
     }
     const updated = { ...acc, movements: [...(acc.movements ?? []), movement] }
     accounts.value[idx] = updated
@@ -307,7 +307,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
       ...acc,
       movements: (acc.movements ?? []).map(m =>
         m.id === movementId
-          ? { ...m, type: data.type, amount: data.amount, description: data.description, date: new Date(data.date).toISOString(), paidBy: data.paidBy || undefined, splits: data.splits?.length ? data.splits : undefined }
+          ? { ...m, type: data.type, amount: data.amount, description: data.description, date: new Date(data.date).toISOString(), ...(data.paidBy ? { paidBy: data.paidBy } : {}), ...(data.splits?.length ? { splits: data.splits } : {}) }
           : m
       )
     }
