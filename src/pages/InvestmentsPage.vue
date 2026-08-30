@@ -335,10 +335,10 @@ async function refreshPrice(inv: Investment) {
       lastUpdated.value[inv.id] = `a las ${now}`
       $q.notify({ type: 'positive', message: `Precio de ${inv.name} actualizado`, timeout: 2000 })
     } else {
-      $q.notify({ type: 'warning', message: `No se encontró cotización para ${inv.ticker}`, timeout: 3000 })
+      $q.notify({ type: 'warning', message: `No se encontró cotización para ${inv.ticker}. Podés actualizar el precio manualmente con "Editar todo".`, timeout: 5000 })
     }
   } catch {
-    $q.notify({ type: 'negative', message: 'Error al obtener la cotización', timeout: 3000 })
+    $q.notify({ type: 'negative', message: 'Error de red al obtener la cotización. Actualizá el precio manualmente.', timeout: 4000 })
   } finally {
     refreshing.value[inv.id] = false
   }
