@@ -1,7 +1,6 @@
 import axios from 'axios'
 import type { Investment } from './storage'
 
-// CoinGecko IDs para los tickers más comunes
 const CRYPTO_IDS: Record<string, string> = {
   BTC: 'bitcoin', ETH: 'ethereum', USDT: 'tether', BNB: 'binancecoin',
   SOL: 'solana', ADA: 'cardano', DOGE: 'dogecoin', MATIC: 'matic-network',
@@ -11,9 +10,8 @@ const CRYPTO_IDS: Record<string, string> = {
   USDC: 'usd-coin', BUSD: 'binance-usd', ARB: 'arbitrum', OP: 'optimism'
 }
 
-// Cache de cotizaciones: ticker → { price, ts }
 const cache = new Map<string, { price: number; ts: number }>()
-const CACHE_TTL = 3 * 60 * 1000 // 3 minutos
+const CACHE_TTL = 3 * 60 * 1000
 
 function cached(key: string): number | null {
   const entry = cache.get(key)
@@ -33,7 +31,8 @@ async function fetchCrypto(ticker: string, currency: 'ARS' | 'USD'): Promise<num
   if (hit !== null) return hit
   const vs = currency === 'ARS' ? 'ars' : 'usd'
   const res = await axios.get(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=${vs}`
+    `https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=${vs}`,
+    { timeout: 10000 }
   )
   const price: number | undefined = res.data?.[id]?.[vs]
   if (price == null) return null
@@ -41,33 +40,73 @@ async function fetchCrypto(ticker: string, currency: 'ARS' | 'USD'): Promise<num
   return price
 }
 
-// Yahoo Finance bloquea requests desde el browser por CORS → usamos un proxy
-const CORS_PROXY = 'https://corsproxy.io/?'
+// CORS proxies en orden de preferencia
+const PROXY_FNS: Array<(url: string) => string> = [
+  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url) => `https://cors-anywhere.herokuapp.com/${url}`,
+]
 
-function yahooUrl(symbol: string): string {
-  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`
-  return CORS_PROXY + encodeURIComponent(url)
+function extractPrice(data: unknown): number | null {
+  if (data == null || typeof data !== 'object') return null
+  const d = data as Record<string, unknown>
+  // Yahoo Finance v8 chart endpoint
+  const chartResult = (d.chart as Record<string, unknown>)?.result
+  if (Array.isArray(chartResult) && chartResult.length > 0) {
+    const meta = (chartResult[0] as Record<string, unknown>)?.meta as Record<string, unknown>
+    const p = meta?.regularMarketPrice
+    if (typeof p === 'number' && p > 0) return p
+  }
+  // Yahoo Finance v7 quote endpoint
+  const quoteResult = (d.quoteResponse as Record<string, unknown>)?.result
+  if (Array.isArray(quoteResult) && quoteResult.length > 0) {
+    const p = (quoteResult[0] as Record<string, unknown>)?.regularMarketPrice
+    if (typeof p === 'number' && p > 0) return p
+  }
+  return null
 }
 
-async function fetchYahoo(symbol: string): Promise<number | null> {
-  // Sanear: quitar .BA duplicado si ya venía en el ticker
-  const clean = symbol.replace(/\.BA\.BA$/i, '.BA')
-  const key = `yahoo_${clean}`
-  const hit = cached(key)
-  if (hit !== null) return hit
-  const res = await axios.get(yahooUrl(clean))
-  const price: number | undefined = res.data?.chart?.result?.[0]?.meta?.regularMarketPrice
-  if (price == null) return null
-  store(key, price)
-  return price
+async function fetchViaProxy(targetUrl: string): Promise<number | null> {
+  for (const proxyFn of PROXY_FNS) {
+    try {
+      const res = await axios.get(proxyFn(targetUrl), { timeout: 10000 })
+      const raw = res.data
+      const data = typeof raw === 'string' ? JSON.parse(raw) : raw
+      const price = extractPrice(data)
+      if (price != null) return price
+    } catch {
+      // siguiente proxy
+    }
+  }
+  return null
 }
 
-// Normaliza el ticker quitando .BA si el usuario lo puso a mano
 function normalize(ticker: string): string {
   return ticker.toUpperCase().replace(/\.BA$/i, '').trim()
 }
 
-// CEDEARs: prueba DISND.BA → DISN.BA (sin D final) → DISND → DISN
+async function fetchYahoo(symbol: string): Promise<number | null> {
+  const clean = symbol.replace(/\.BA\.BA$/i, '.BA')
+  const key = `yahoo_${clean}`
+  const hit = cached(key)
+  if (hit !== null) return hit
+
+  const urls = [
+    `https://query2.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=1d`,
+    `https://query1.finance.yahoo.com/v8/finance/chart/${clean}?interval=1d&range=1d`,
+    `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${clean}`,
+  ]
+
+  for (const url of urls) {
+    const price = await fetchViaProxy(url)
+    if (price != null) {
+      store(key, price)
+      return price
+    }
+  }
+  return null
+}
+
 async function fetchCedear(ticker: string): Promise<number | null> {
   const t = normalize(ticker)
   const variants = [
