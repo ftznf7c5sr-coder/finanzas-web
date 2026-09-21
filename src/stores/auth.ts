@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { AuthService } from '../services/auth'
+import { usePortfolioStore } from './portfolio'
 
 export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = ref(AuthService.isLoggedIn())
@@ -53,6 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
   function logout() {
     AuthService.logout()
     isLoggedIn.value = false
+    usePortfolioStore().reset()
   }
 
   return {

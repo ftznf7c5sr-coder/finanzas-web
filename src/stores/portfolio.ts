@@ -16,6 +16,20 @@ export const usePortfolioStore = defineStore('portfolio', () => {
   const dolarMep = ref(0)
   const loading = ref(false)
 
+  function reset() {
+    accounts.value = []
+    investments.value = []
+    assets.value = []
+    snapshots.value = []
+    freeExpenses.value = []
+    contacts.value = []
+    settlements.value = []
+    dolarBlue.value = 0
+    dolarOficial.value = 0
+    dolarMep.value = 0
+    loading.value = false
+  }
+
   async function init() {
     loading.value = true
     try {
@@ -455,7 +469,7 @@ export const usePortfolioStore = defineStore('portfolio', () => {
     dolarBlue, dolarOficial, dolarMep, loading,
     totalAccountsARS, totalInvestmentsARS, totalAssetsARS,
     totalPatrimonioARS, totalPatrimonioUSD,
-    init, toARS, toUSD,
+    init, reset, toARS, toUSD,
     currentTna, accountInterest, accountInterestAt, accountEffectiveBalance, accountEffectiveBalanceAt,
     accountNetMovements, accountTotalExpenses, accountTotalIncome,
     addTnaPeriod, removeTnaPeriod, resolvedPeriods,
