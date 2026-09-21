@@ -43,9 +43,10 @@ async function fetchCrypto(ticker: string, currency: 'ARS' | 'USD'): Promise<num
 
 // --- Yahoo Finance via CORS proxies ---
 // Proxies lanzados en paralelo; el primero que responda con precio válido gana.
+// corsproxy.io pasó a requerir API key paga (devuelve 401), por eso se usa r.jina.ai como segundo proxy.
 const PROXY_FNS: Array<(url: string) => string> = [
   (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  (url) => `https://r.jina.ai/${url}`,
 ]
 
 function extractPrice(data: unknown): number | null {
@@ -65,12 +66,20 @@ function extractPrice(data: unknown): number | null {
   return null
 }
 
+// r.jina.ai envuelve la respuesta en texto/markdown ("Markdown Content:\n\n{...}"),
+// así que hay que aislar el JSON antes de parsearlo.
+function parseProxyResponse(raw: unknown): unknown {
+  if (typeof raw !== 'string') return raw
+  const start = raw.indexOf('{')
+  if (start === -1) throw new Error('no json in response')
+  return JSON.parse(raw.slice(start))
+}
+
 // Lanza todos los proxies en paralelo para un URL dado. Promise.any toma el primero exitoso.
 async function raceProxies(targetUrl: string): Promise<number | null> {
   const attempts = PROXY_FNS.map(async (proxyFn) => {
-    const res = await axios.get(proxyFn(targetUrl), { timeout: 6000 })
-    const raw = res.data
-    const data = typeof raw === 'string' ? JSON.parse(raw) : raw
+    const res = await axios.get(proxyFn(targetUrl), { timeout: 9000 })
+    const data = parseProxyResponse(res.data)
     const price = extractPrice(data)
     if (price == null) throw new Error('no price in response')
     return price
